@@ -14,7 +14,7 @@ volatile int prev_time = 0;
 
 int on_off_value = 0;
 int temp_pwm_value;
-int temp_dimming;
+unsigned char temp_dimming;
 int prev_dimmering = dimming;
 
 // smoothing readings
@@ -67,6 +67,9 @@ void loop() {
   
     // Handle values that the specific LED bulb does not light
     temp_dimming = constrain(temp_dimming, 10, 114); 
+    if (temp_dimming > 110) {
+      temp_dimming = 114;
+    }
     dimming = temp_dimming;
     // Serial prints will mess up the timing
     //Serial.print(temp_pwm_value);

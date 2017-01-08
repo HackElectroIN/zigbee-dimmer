@@ -1,5 +1,3 @@
-#include "RunningMedian.h"
-
 unsigned char AC_LOAD_PIN = 5;    // Output to Opto Triac pin
 unsigned char SYNC_PIN = 2; // On trinket and Uno, external interrupt is pin #2
 

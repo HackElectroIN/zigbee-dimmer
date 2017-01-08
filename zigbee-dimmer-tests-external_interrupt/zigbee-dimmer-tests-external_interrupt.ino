@@ -1,6 +1,6 @@
 //unsigned char AC_LOAD = 3;    // Output to Opto Triac pin
 // unsigned char SYNC_PIN = 2; // On trinket, external interrupt is pin #2
-unsigned char PWM_IN_PIN = 3;
+unsigned char PWM_IN_PIN = 2;
 unsigned char LED_PIN = 1; 
 
 unsigned char dimming = 3;  // Dimming level (0-100)
@@ -27,11 +27,11 @@ void setup() {
 
 
   // If using external interrupt. Pin 2 on Uno, Pin 2 on attiny
-  //attachInterrupt(0, rising, RISING);
+  attachInterrupt(0, rising, RISING);
 
   // If using regular digital interrupt
-  pinMode(PWM_IN_PIN, INPUT);  
-  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
+  //pinMode(PWM_IN_PIN, INPUT);  
+  //attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, CHANGE);
   
   // initialize the digital pin as an output.
   pinMode(LED_PIN, OUTPUT);  
@@ -59,28 +59,25 @@ void loop() {
   //Serial.println(temp_pwm_value);
   int mapped = map(temp_pwm_value, 0, 900, 115, 0);
   Serial.println(mapped);
-  /*
-  Serial.println(mapped);
   if (is_falling) {
       is_falling = false;
       is_rising = false;
       Serial.println("YOYOYO!");
   }
-  */
   //Serial.println(mapped);
   //Serial.println(is_rising);
 }
 
 
 void rising() {
-  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
+  attachInterrupt(0, falling, FALLING);
   prev_time = micros();
   is_falling = false;
   is_rising = true;
 }
  
 void falling() {
-  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), rising, RISING);
+  attachInterrupt(0, rising, RISING);
   pwm_value = micros()-prev_time;
   is_falling = true;
   is_rising = false;

@@ -1,12 +1,10 @@
-unsigned char AC_LOAD_PIN = 5;    // Output to Opto Triac pin
-unsigned char SYNC_PIN = 2; // On trinket and Uno, external interrupt is pin #2
+unsigned char AC_LOAD_PIN = 1;    // Output to Opto Triac pin
+unsigned char SYNC_PIN = 2; // Need pin 2 or 3 for interrupts
 
-unsigned char PWM_IN_PIN = 3;
-unsigned char ONOFF_IN_PIN = 6;
+unsigned char PWM_IN_PIN = 3; // Need pin 2 or 3 for interrupts
+unsigned char ONOFF_IN_PIN = 4;
 
-unsigned char LED_PIN = 13;
-
-volatile unsigned char dimming = 3;  // Dimming level (0-100)
+volatile unsigned char dimming = 10;  // Dimming level (0-100)
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
 unsigned char i;
 
@@ -25,16 +23,14 @@ void setup() {
   pinMode(AC_LOAD_PIN, OUTPUT);
   
   // Dimmer sync. Pin 2 on Uno, Pin 2 on attiny
-  attachInterrupt(0, zero_crosss_int, RISING);
+  pinMode(SYNC_PIN, INPUT);  
+  attachInterrupt(digitalPinToInterrupt(SYNC_PIN), zero_crosss_int, RISING);
 
   // PIN for reading PWM from CREE bulb circuit
   pinMode(PWM_IN_PIN, INPUT);  
   attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
 
-  pinMode(ONOFF_IN_PIN, INPUT); 
-  
-  // initialize the digital pin as an output.
-  pinMode(LED_PIN, OUTPUT);  
+  pinMode(ONOFF_IN_PIN, INPUT);   
 }
 
 
@@ -92,3 +88,4 @@ void falling() {
     pwm_value = micros()-prev_time;
   }
 }
+

@@ -1,12 +1,19 @@
+#include "RunningAverage.h"
+RunningAverage smoother(15);
+
 unsigned char AC_LOAD_PIN = 1;    // Output to Opto Triac pin
 volatile int prev_sync_stat = 0;
 volatile int prev_pwm_stat = 0;
 
+volatile unsigned char dimming = 10;  // Dimming level (0-100)
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
-volatile boolean ignore_next = false; 
 
 volatile int pwm_value = 0;
 volatile int prev_time = 0;
+
+int temp_pwm_value;
+unsigned char temp_dimming;
+
 
 void setup()
 {
@@ -21,7 +28,28 @@ void setup()
 void loop() {
   /* Nothing to do: the program jumps automatically to Interrupt Service Routine "blink"
    in case of a hardware interrupt  */
-   Serial.println(pwm_value);        
+
+    temp_pwm_value = pwm_value;
+    //Serial.println(temp_pwm_value );
+    
+    // Get PWM and make sure we don't see any unexpected values
+    temp_pwm_value = pwm_value;
+    if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
+      Serial.println(temp_pwm_value);        
+      return; 
+    }
+
+    // 
+    temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
+
+    // Convert to values used by the dimmer circuit
+    temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
+    temp_dimming = constrain(temp_dimming, 10, 114); 
+    smoother.addValue(temp_dimming );
+    temp_dimming  = smoother.getAverage();
+    //Serial.println(temp_dimming);
+    dimming = temp_dimming;//temp_dimming; 
+   
 
 }  
 
@@ -52,7 +80,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
     interrupted = true;
     //Serial.println("A1-1");    
     prev_sync_stat = 1;
-    int dimming = 114;
+    //int dimming = 114;
     int dimtime = (65*dimming);    // For 60Hz =>65    
     delayMicroseconds(dimtime);    // Off cycle
     digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing

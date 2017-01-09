@@ -1,3 +1,6 @@
+#include "RunningAverage.h"
+RunningAverage smoother(15);
+
 unsigned char AC_LOAD_PIN = 1;    // Output to Opto Triac pin
 unsigned char SYNC_PIN = A1; // Need pin 2 or 3 for interrupts
 unsigned char PWM_IN_PIN = A0; // Need pin 2 or 3 for interrupts
@@ -36,6 +39,8 @@ void InitialiseIO(){
   digitalWrite(A1, HIGH);   // Configure internal pull-up resistor  
 }
 
+// dimming = 10 is brightest
+// dimming = 114 is darkest
 void loop() {  
   on_off_value = digitalRead(ONOFF_IN_PIN);
   if (on_off_value == LOW) {
@@ -46,16 +51,22 @@ void loop() {
     
     // Get PWM and make sure we don't see any unexpected values
     temp_pwm_value = pwm_value;
-    if ((temp_pwm_value < 0) || (temp_pwm_value > 1000)) {
+    if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
       return; 
-    }    
+    }
+
+    // 
     temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
 
     // Convert to values used by the dimmer circuit
     temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
-    temp_dimming = constrain(temp_dimming, 10, 110); 
+    temp_dimming = constrain(temp_dimming, 10, 114); 
+    smoother.addValue(temp_dimming );
+    temp_dimming  = smoother.getAverage();
+
+    dimming = temp_dimming;//temp_dimming;    
     //Serial.println(temp_dimming);
-    dimming = temp_dimming;//temp_dimming;
+
   }
 }
 
@@ -75,6 +86,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
   }
   
   if ((digitalRead(A1) == 1) && (prev_sync_stat == 0)) {
+    // function to be fired at the zero crossing to dim the light
     interrupted = true;
     //Serial.println("A1-1");    
     prev_sync_stat = 1;
@@ -84,7 +96,10 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
     delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
     digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
   }
-  
+
+  // Measuring PWM time between rising and falling
+  // Ignoring samples that were interrupted by the
+  // signal we are sending to the bulb 
   if ((digitalRead(A0) == 0) && (prev_pwm_stat == 1)) {
     //Serial.println("A0-0");
     if (!interrupted) {
@@ -104,7 +119,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
 /*******************************************************/
 // Dimmer
 /*******************************************************/
-void zero_crosss_int()  // function to be fired at the zero crossing to dim the light
+void zero_crosss_int()  
 {
   // Firing angle calculation : 1 full 50Hz wave =1/50=20ms 
   // Every zerocrossing : (50Hz)-> 10ms (1/2 Cycle) For 60Hz (1/2 Cycle) => 8.33ms 

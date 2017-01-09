@@ -22,19 +22,19 @@ void setup() {
   // Set AC Load pin as output
   pinMode(AC_LOAD_PIN, OUTPUT);
   
-  // Dimmer sync. Pin 2 on Uno, Pin 2 on attiny
-  pinMode(SYNC_PIN, INPUT);
-  digitalWrite(SYNC_PIN, HIGH);   // Configure internal pull-up resistor
-
-  // PIN for reading PWM from CREE bulb circuit
-  pinMode(PWM_IN_PIN, INPUT);  
-  digitalWrite(PWM_IN_PIN, HIGH);   // Configure internal pull-up resistor  
-
+  
   pinMode(ONOFF_IN_PIN, INPUT);
 
+  InitialiseIO();
   InitialiseInterrupt();
 }
 
+void InitialiseIO(){
+  pinMode(A0, INPUT);     // Pin A0 is input to which a switch is connected
+  digitalWrite(A0, HIGH);   // Configure internal pull-up resistor  
+  pinMode(A1, INPUT);     // Pin A0 is input to which a switch is connected
+  digitalWrite(A1, HIGH);   // Configure internal pull-up resistor  
+}
 
 void loop() {  
   on_off_value = digitalRead(ONOFF_IN_PIN);
@@ -43,23 +43,19 @@ void loop() {
   } else {
     temp_pwm_value = pwm_value;
     //Serial.println(temp_pwm_value );
+    
     // Get PWM and make sure we don't see any unexpected values
     temp_pwm_value = pwm_value;
-    //Serial.println(temp_pwm_value );
-    if (temp_pwm_value > 1000) {
-      temp_pwm_value = 10;
-    }
-    temp_pwm_value = constrain(temp_pwm_value, 10, 890); 
+    if ((temp_pwm_value < 0) || (temp_pwm_value > 1000)) {
+      return; 
+    }    
+    temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
 
     // Convert to values used by the dimmer circuit
-    temp_dimming = map(temp_pwm_value, 10, 890, 10, 114);;
-    temp_dimming = constrain(temp_dimming, 10, 114); 
-
-    dimming = temp_dimming;//temp_dimming;
-    // Serial prints will mess up the timing
-    //Serial.print(temp_pwm_value);
-    //Serial.print(" - ");
+    temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
+    temp_dimming = constrain(temp_dimming, 10, 110); 
     //Serial.println(temp_dimming);
+    dimming = temp_dimming;//temp_dimming;
   }
 }
 
@@ -72,18 +68,26 @@ void InitialiseInterrupt(){
 
 ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=ADC0..5) change
             // will generate an interrupt: but this will always be the same interrupt routine
+  
   if ((digitalRead(A1) == 0) && (prev_sync_stat == 1)) {
+    //Serial.println("A1-0");    
     prev_sync_stat = 0;
   }
   
   if ((digitalRead(A1) == 1) && (prev_sync_stat == 0)) {
     interrupted = true;
-    zero_crosss_int();
+    //Serial.println("A1-1");    
     prev_sync_stat = 1;
+    int dimtime = (65*dimming);    // For 60Hz =>65    
+    delayMicroseconds(dimtime);    // Off cycle
+    digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
+    delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
+    digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
   }
   
   if ((digitalRead(A0) == 0) && (prev_pwm_stat == 1)) {
-    if (! interrupted) {
+    //Serial.println("A0-0");
+    if (!interrupted) {
       pwm_value = micros()-prev_time;
     }
     prev_pwm_stat = 0;
@@ -91,6 +95,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
   }
   
   if ((digitalRead(A0) == 1) && (prev_pwm_stat == 0)) {
+    //Serial.println("A0-1");
     prev_time = micros();
     prev_pwm_stat = 1;
   }

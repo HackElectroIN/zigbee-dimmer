@@ -23,10 +23,12 @@ void setup() {
   pinMode(AC_LOAD_PIN, OUTPUT);
   
   // Dimmer sync. Pin 2 on Uno, Pin 2 on attiny
-  pinMode(SYNC_PIN, INPUT);  
+  pinMode(SYNC_PIN, INPUT);
+  digitalWrite(SYNC_PIN, HIGH);   // Configure internal pull-up resistor
 
   // PIN for reading PWM from CREE bulb circuit
   pinMode(PWM_IN_PIN, INPUT);  
+  digitalWrite(PWM_IN_PIN, HIGH);   // Configure internal pull-up resistor  
 
   pinMode(ONOFF_IN_PIN, INPUT);
 
@@ -39,7 +41,8 @@ void loop() {
   if (on_off_value == LOW) {
     dimming = 0;
   } else {
-      
+    temp_pwm_value = pwm_value;
+    //Serial.println(temp_pwm_value );
     // Get PWM and make sure we don't see any unexpected values
     temp_pwm_value = pwm_value;
     //Serial.println(temp_pwm_value );
@@ -69,7 +72,6 @@ void InitialiseInterrupt(){
 
 ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=ADC0..5) change
             // will generate an interrupt: but this will always be the same interrupt routine
-  cli();
   if ((digitalRead(A1) == 0) && (prev_sync_stat == 1)) {
     prev_sync_stat = 0;
   }
@@ -85,6 +87,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
       pwm_value = micros()-prev_time;
     }
     prev_pwm_stat = 0;
+    return;
   }
   
   if ((digitalRead(A0) == 1) && (prev_pwm_stat == 0)) {
@@ -92,7 +95,6 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
     interrupted = false;
     prev_pwm_stat = 1;
   }
-  sei();
 }
 
 /*******************************************************/

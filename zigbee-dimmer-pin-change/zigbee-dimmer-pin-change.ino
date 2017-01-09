@@ -3,6 +3,7 @@ volatile int prev_sync_stat = 0;
 volatile int prev_pwm_stat = 0;
 
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
+volatile boolean ignore_next = false; 
 
 volatile int pwm_value = 0;
 volatile int prev_time = 0;
@@ -35,7 +36,7 @@ void InitialiseIO(){
 void InitialiseInterrupt(){
   cli();    // switch interrupts off while messing with their settings  
   PCICR =0x02;          // Enable PCINT1 interrupt
-  PCMSK1 = 0b00000111;
+  PCMSK1 = 0b00000011;
   sei();    // turn interrupts back on
 }
 
@@ -61,15 +62,15 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
   
   if ((digitalRead(A0) == 0) && (prev_pwm_stat == 1)) {
     //Serial.println("A0-0");
-    if (! interrupted) {
+    if (!interrupted) {
       pwm_value = micros()-prev_time;
     }
     prev_pwm_stat = 0;
+    interrupted = false;
   }
   
   if ((digitalRead(A0) == 1) && (prev_pwm_stat == 0)) {
     //Serial.println("A0-1");
-    interrupted = false;
     prev_time = micros();
     prev_pwm_stat = 1;
   }

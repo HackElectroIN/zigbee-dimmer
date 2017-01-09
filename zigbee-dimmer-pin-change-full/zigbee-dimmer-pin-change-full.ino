@@ -87,12 +87,11 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
       pwm_value = micros()-prev_time;
     }
     prev_pwm_stat = 0;
-    return;
+    interrupted = false;
   }
   
   if ((digitalRead(A0) == 1) && (prev_pwm_stat == 0)) {
     prev_time = micros();
-    interrupted = false;
     prev_pwm_stat = 1;
   }
 }

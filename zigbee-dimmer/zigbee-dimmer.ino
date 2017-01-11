@@ -18,7 +18,7 @@ int temp_pwm_value;
 unsigned char temp_dimming;
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
 
   // Set AC Load pin as output
   pinMode(AC_LOAD_PIN, OUTPUT);
@@ -60,7 +60,7 @@ void loop() {
     temp_dimming  = smoother.getAverage();
 
     dimming = temp_dimming;//temp_dimming;    
-    Serial.println(temp_dimming);
+   // Serial.println(temp_dimming);
 
   }
 }
@@ -71,6 +71,7 @@ void loop() {
 /*******************************************************/
 void zero_crosss_int()  // function to be fired at the zero crossing to dim the light
 {
+  detachInterrupt(digitalPinToInterrupt(PWM_IN_PIN));
   interrupted = true;
   // Firing angle calculation : 1 full 50Hz wave =1/50=20ms 
   // Every zerocrossing : (50Hz)-> 10ms (1/2 Cycle) For 60Hz (1/2 Cycle) => 8.33ms 
@@ -80,6 +81,7 @@ void zero_crosss_int()  // function to be fired at the zero crossing to dim the 
   digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
   delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
   digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
+  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
 }
 
 /*******************************************************/

@@ -1,11 +1,13 @@
 #include "RunningAverage.h"
 RunningAverage smoother(15);
 
-unsigned char AC_LOAD_PIN = 1;    // Output to Opto Triac pin
+unsigned char AC_LOAD_PIN = 6;    // Output to Opto Triac pin
 unsigned char SYNC_PIN = 2; // Need pin 2 or 3 for interrupts
 
 unsigned char PWM_IN_PIN = 3; // Need pin 2 or 3 for interrupts
-unsigned char ONOFF_IN_PIN = 4;
+unsigned char ONOFF_IN_PIN = 8;
+
+unsigned char SHUTDOWN_VALUE = 60; // when to turn off the bulb (because of flickering..)
 
 volatile unsigned char dimming = 10;  // Dimming level (0-100)
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
@@ -15,6 +17,8 @@ volatile int prev_time = 0;
 
 int on_off_value = 0;
 int temp_pwm_value;
+int prev_temp_pwm_value = -1;
+int prev_dimming = -1;
 unsigned char temp_dimming;
 
 void setup() {
@@ -38,30 +42,37 @@ void setup() {
 // dimming = 114 is darkest
 void loop() {  
   on_off_value = digitalRead(ONOFF_IN_PIN);
+  //Serial.println(on_off_value );
   if (on_off_value == LOW) {
     dimming = 0;
   } else {
     temp_pwm_value = pwm_value;
-    //Serial.println(temp_pwm_value );
-    
-    // Get PWM and make sure we don't see any unexpected values
-    temp_pwm_value = pwm_value;
-    if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
-      return; 
+    if (prev_temp_pwm_value != temp_pwm_value) {
+      prev_temp_pwm_value = temp_pwm_value;
+      //Serial.println(temp_pwm_value );
+      
+      // Get PWM and make sure we don't see any unexpected values
+      temp_pwm_value = pwm_value;
+      if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
+        return; 
+      }
+  
+      // 
+      temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
+  
+      // Convert to values used by the dimmer circuit
+      temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
+      temp_dimming = constrain(temp_dimming, 10, 114); 
+      smoother.addValue(temp_dimming );
+      temp_dimming  = smoother.getAverage();
+
+      dimming = temp_dimming;
+      //if (abs(dimming - prev_dimming) >1) {
+        //Serial.println(temp_dimming);
+      //}
+      prev_dimming = dimming;
+      //Serial.println(temp_dimming);
     }
-
-    // 
-    temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
-
-    // Convert to values used by the dimmer circuit
-    temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
-    temp_dimming = constrain(temp_dimming, 10, 114); 
-    smoother.addValue(temp_dimming );
-    temp_dimming  = smoother.getAverage();
-
-    dimming = temp_dimming;//temp_dimming;    
-   // Serial.println(temp_dimming);
-
   }
 }
 

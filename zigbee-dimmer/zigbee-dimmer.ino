@@ -13,9 +13,8 @@ unsigned char SHUTDOWN_VALUE = 60; // when to turn off the bulb (because of flic
 
 volatile unsigned char dimming = 114;  // Dimming level (0-100)
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
-
 volatile int pwm_value = 0;
-volatile int prev_time = 0;
+volatile unsigned long prev_time = 0;
 
 int on_off_value = 0;
 int temp_pwm_value;
@@ -24,7 +23,7 @@ int prev_dimming = -1;
 unsigned char temp_dimming;
 
 void setup() {
-  Serial.begin(9600);
+  //Serial.begin(9600);
   
   // Set AC Load pin as output
   pinMode(AC_LOAD_PIN, OUTPUT);
@@ -54,12 +53,10 @@ void loop() {
       //Serial.println(temp_pwm_value );
       
       // Get PWM and make sure we don't see any unexpected values
-      temp_pwm_value = pwm_value;
       if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
         return; 
       }
   
-      // 
       temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
   
       // Convert to values used by the dimmer circuit
@@ -68,9 +65,6 @@ void loop() {
       smoother.addValue(temp_dimming );
       temp_dimming  = smoother.getAverage();
 
-      //if (1==1) {
-      //  temp_dimming = 114;
-      //}
       dimming = temp_dimming;
       //Serial.println(temp_dimming);
     }
@@ -83,22 +77,22 @@ void loop() {
 /*******************************************************/
 void zero_crosss_int()  // function to be fired at the zero crossing to dim the light
 {
-  detachInterrupt(digitalPinToInterrupt(SYNC_PIN));
-  detachInterrupt(digitalPinToInterrupt(PWM_IN_PIN));
+  noInterrupts();
   interrupted = true;
   // Firing angle calculation : 1 full 50Hz wave =1/50=20ms 
   // Every zerocrossing : (50Hz)-> 10ms (1/2 Cycle) For 60Hz (1/2 Cycle) => 8.33ms 
   // 10ms=10000us
   int dimtime = (65*dimming);    // For 60Hz =>65    
-  int start = micros();
+  //unsigned long start = micros();
   delayMicroseconds(dimtime);    // Off cycle
-  int mid = micros();
+  //unsigned long mid = micros();
   digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
   delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
-  int endtime = micros();
+  //unsigned long endtime = micros();
   digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
-  int b1 = mid-start;
-  int b2 = endtime - mid;
+  //long b1 = mid - start;
+  //long b2 = endtime - mid;
+  /*
   if (b1 < 0 or b2 <0) {
     Serial.print(b1);
     Serial.print(",");
@@ -108,8 +102,8 @@ void zero_crosss_int()  // function to be fired at the zero crossing to dim the 
     Serial.print(",");
     Serial.println(dimtime);
   }
-  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
-  attachInterrupt(digitalPinToInterrupt(SYNC_PIN), zero_crosss_int, RISING);
+  */
+  interrupts();
 }
 
 /*******************************************************/

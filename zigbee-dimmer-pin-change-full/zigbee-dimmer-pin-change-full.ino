@@ -1,10 +1,10 @@
 #include "RunningAverage.h"
 RunningAverage smoother(15);
 
-unsigned char AC_LOAD_PIN = 1;    // Output to Opto Triac pin
+unsigned char AC_LOAD_PIN = 6;    // Output to Opto Triac pin
 unsigned char SYNC_PIN = A1; // Need pin 2 or 3 for interrupts
 unsigned char PWM_IN_PIN = A0; // Need pin 2 or 3 for interrupts
-unsigned char ONOFF_IN_PIN = 4;
+unsigned char ONOFF_IN_PIN = 8;
 
 volatile unsigned char dimming = 10;  // Dimming level (0-100)
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
@@ -86,6 +86,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
   }
   
   if ((digitalRead(A1) == 1) && (prev_sync_stat == 0)) {
+    cli();
     // function to be fired at the zero crossing to dim the light
     interrupted = true;
     //Serial.println("A1-1");    
@@ -95,6 +96,7 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
     digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
     delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
     digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
+    sei();    
   }
 
   // Measuring PWM time between rising and falling
@@ -115,20 +117,4 @@ ISR(PCINT1_vect) {    // Interrupt service routine. Every single PCINT8..14 (=AD
     prev_pwm_stat = 1;
   }
 }
-
-/*******************************************************/
-// Dimmer
-/*******************************************************/
-void zero_crosss_int()  
-{
-  // Firing angle calculation : 1 full 50Hz wave =1/50=20ms 
-  // Every zerocrossing : (50Hz)-> 10ms (1/2 Cycle) For 60Hz (1/2 Cycle) => 8.33ms 
-  // 10ms=10000us
-  int dimtime = (65*dimming);    // For 60Hz =>65    
-  delayMicroseconds(dimtime);    // Off cycle
-  digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
-  delayMicroseconds(8.33);         // triac On propogation delay (for 60Hz use 8.33)
-  digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
-}
-
 

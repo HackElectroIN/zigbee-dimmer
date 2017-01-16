@@ -57,6 +57,6 @@ void loop() {
   if((dim>=128) || (dim<=0))
     inc*=-1;
   */
-  dim = 114;
+  dim = 113;
   delay(100);
 }

@@ -82,12 +82,11 @@ void loop() {
 // Dimmer
 /*******************************************************/
 void zero_cross_called() {
+  interrupted = true;
+  detachInterrupt(digitalPinToInterrupt(PWM_IN_PIN));
   int dimtime = 65*dimming;     //65?  
   Timer1.initialize(dimtime);                      // Initialize TimerOne library for the freq we need
   Timer1.attachInterrupt(zero_cross_step2);      
-
-  // consider - interrupts
-  //interrupted = true;
 }
 
 void zero_cross_step2() {
@@ -95,6 +94,7 @@ void zero_cross_step2() {
   delayMicroseconds(8.33);         // triac On propogation delay
   digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
   Timer1.stop();
+  attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
 }
             
 /*******************************************************/

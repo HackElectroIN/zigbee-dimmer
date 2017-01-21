@@ -1,0 +1,51 @@
+[Eagle]
+Version="07 07 00"
+Platform="Linux"
+Serial="62191E841E-LSR-WLM-1EL"
+Globals="Globals"
+Desktop="Desktop"
+
+[Globals]
+AutoSaveProject=1
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/LP2985AIM5-2.5.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/RFD22301-11.25.13.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/fab.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/fab_old.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/frames-oren.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/oren.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Adafruit-Eagle-Library/adafruit.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/adafruit.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/holes.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/pneumatic.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/rectifier.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/stepper.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/triac.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/valves2.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/Eagle-Libraries/varistor.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Aesthetics.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-AnalogIC.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Boards.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Capacitors.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Connectors.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-DigitalIC.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-DiscreteSemi.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Displays.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Electromechanical.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-FreqCtrl.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-LED.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Passives.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-PowerIC.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-RF.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Resistors.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Retired.lbr"
+UsedLibrary="/home/orenled/Dropbox/Projects/eagle/libs/SparkFun-Eagle-Libraries/SparkFun-Sensors.lbr"
+
+[Win_1]
+Type="Control Panel"
+Loc="325 109 1421 892"
+State=1
+Number=0
+
+[Desktop]
+Screen="3520 1080"
+Window="Win_1"

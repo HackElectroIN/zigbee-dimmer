@@ -452,9 +452,15 @@ The minimum width is set at 10 mils for now. You can go down to 6, but only if y
 <attribute name="TOP_NEG" value="-" x="10.795" y="40.64" size="1.778" layer="27" display="off"/>
 <attribute name="TOP_POS" value="+" x="10.795" y="40.64" size="1.778" layer="27" display="off"/>
 </element>
-<element name="U2" library="zigbee-dimmer-libs" package="CREE-ZIGBEE" value="CREE_ZIGBEE" x="10.795" y="0.445" rot="MR0"/>
+<element name="U2" library="zigbee-dimmer-libs" package="CREE-ZIGBEE" value="CREE_ZIGBEE" x="10.795" y="0.445" smashed="yes" rot="MR0">
+<attribute name="NAME" x="10.105" y="1.405" size="1.27" layer="26" rot="MR0"/>
+<attribute name="VALUE" x="16.485" y="4.215" size="1.27" layer="28" rot="MR0"/>
+</element>
 <element name="JP1" library="zigbee-dimmer-libs" package="1X04-SMD" value="" x="10.16" y="21.59"/>
-<element name="U$1" library="zigbee-dimmer-libs" package="POLOLU-ASTAR_MICRO_MIN" value="POLOLU-ASTAR-MICROMINIMAL" x="10.795" y="29.845" rot="MR0"/>
+<element name="U$1" library="zigbee-dimmer-libs" package="POLOLU-ASTAR_MICRO_MIN" value="POLOLU-ASTAR-MICROMINIMAL" x="10.795" y="29.845" smashed="yes" rot="MR0">
+<attribute name="VALUE" x="11.265" y="42.605" size="1.27" layer="28" rot="MR270"/>
+<attribute name="NAME" x="14.605" y="32.385" size="1.27" layer="26" rot="MR0"/>
+</element>
 </elements>
 <signals>
 <signal name="3V3">

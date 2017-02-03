@@ -11,13 +11,18 @@ unsigned char SYNC_PIN = 2; // Need pin 2 or 3 for interrupts
 unsigned char PWM_IN_PIN = 3; // Need pin 2 or 3 for interrupts
 unsigned char ONOFF_IN_PIN = 8;
 
+volatile unsigned char DIM_DARKEST = 108;
+volatile unsigned char DIM_BRIGHTEST = 10;
+
 // Dimmer stuff
 volatile boolean zero_cross=0;  // Boolean to store a "switch" to tell us if we have crossed zero
-volatile unsigned char dimming = 114;  // Dimming level (0-100)
+volatile unsigned char dimming = DIM_DARKEST;  // Dimming level (0-100)
 
 //PWM reading stuff
+volatile boolean pwm_seen = false; // when the cree module is turned on, sometimes no PWM
+                                   // values are available until the HUE system sends a new value
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
-volatile int pwm_value = 0;
+volatile int pwm_value = DIM_BRIGHTEST;
 volatile unsigned long prev_time = 0; // used for measuring PWM
 
 // variables used in the loop
@@ -44,7 +49,7 @@ void setup() {
 }
 
 // dimming = 10 is brightest
-// dimming = 114 is darkest
+// dimming = 114 is darkest, but flickers with some bulbs. Might need a different value.
 void loop() {  
   //TODO: replace with interrupt (mode:change)
   on_off_value = digitalRead(ONOFF_IN_PIN);
@@ -52,8 +57,13 @@ void loop() {
   if (on_off_value == LOW) {
     dimming = 128;
   } else {
+    // Check PWM value from Cree, calculate dim level if needed
     temp_pwm_value = pwm_value;
+    //Serial.print(pwm_seen);
+    //Serial.print(",");
+    //Serial.println(temp_pwm_value );
     if (prev_temp_pwm_value != temp_pwm_value) {
+      
       prev_temp_pwm_value = temp_pwm_value;
       //Serial.println(temp_pwm_value );
       
@@ -65,10 +75,11 @@ void loop() {
       temp_pwm_value = constrain(temp_pwm_value, 10, 800); 
   
       // Convert to values used by the dimmer circuit
-      temp_dimming = map(temp_pwm_value, 10, 800, 10, 114);;
+      temp_dimming = map(temp_pwm_value, 10, 800, DIM_BRIGHTEST, DIM_DARKEST);;
       smoother.addValue(temp_dimming );
       temp_dimming  = smoother.getAverage();
       dimming = temp_dimming;
+      //Serial.println(dimming);
     }
   }
 }
@@ -97,6 +108,7 @@ void zero_cross_step2() {
 // PWM-in functions
 /*******************************************************/
 void rising() {
+  pwm_seen = true;
   attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
   prev_time = micros();
 }

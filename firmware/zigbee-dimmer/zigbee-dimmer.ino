@@ -5,6 +5,8 @@
 RunningAverage smoother(15);
 
 // pins
+unsigned char LED_PIN = 13;    // 
+
 unsigned char AC_LOAD_PIN = 6;    // Output to Opto Triac pin
 unsigned char SYNC_PIN = 2; // Need pin 2 or 3 for interrupts
 
@@ -16,7 +18,8 @@ volatile unsigned char DIM_BRIGHTEST = 10;
 
 // Dimmer stuff
 volatile boolean zero_cross=0;  // Boolean to store a "switch" to tell us if we have crossed zero
-volatile unsigned char dimming = DIM_DARKEST;  // Dimming level (0-100)
+volatile unsigned char dimming = DIM_BRIGHTEST;  // Dimming level (0-~100). Set to "BRIGHT" so the
+                                                 // lights are on by default
 
 //PWM reading stuff
 volatile boolean pwm_seen = false; // when the cree module is turned on, sometimes no PWM
@@ -30,9 +33,11 @@ int on_off_value = 0;
 int temp_pwm_value;
 int prev_temp_pwm_value = -1;
 unsigned char temp_dimming;
+int led_value = 0;
 
 void setup() {
   //Serial.begin(9600);
+  pinMode(LED_PIN, OUTPUT);
   
   // Set AC Load pin as output
   pinMode(AC_LOAD_PIN, OUTPUT);
@@ -46,6 +51,8 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
 
   pinMode(ONOFF_IN_PIN, INPUT); 
+  delay(500);
+  //Serial.println("Started");
 }
 
 // dimming = 10 is brightest
@@ -57,13 +64,17 @@ void loop() {
   if (on_off_value == LOW) {
     dimming = 128;
   } else {
+    // LED
+    led_value = map(dimming, DIM_BRIGHTEST, DIM_DARKEST, 255, 10);;
+    analogWrite(LED_PIN,led_value);
+
     // Check PWM value from Cree, calculate dim level if needed
     temp_pwm_value = pwm_value;
-    //Serial.print(pwm_seen);
-    //Serial.print(",");
-    //Serial.println(temp_pwm_value );
-    if (prev_temp_pwm_value != temp_pwm_value) {
-      
+      //Serial.print(pwm_seen);
+      //Serial.print(",");
+      //Serial.println(temp_pwm_value );
+    
+    if (prev_temp_pwm_value != temp_pwm_value) {      
       prev_temp_pwm_value = temp_pwm_value;
       //Serial.println(temp_pwm_value );
       
@@ -79,6 +90,7 @@ void loop() {
       smoother.addValue(temp_dimming );
       temp_dimming  = smoother.getAverage();
       dimming = temp_dimming;
+      //Serial.print("DIMMING:");
       //Serial.println(dimming);
     }
   }

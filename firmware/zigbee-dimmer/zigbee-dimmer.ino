@@ -12,22 +12,18 @@ unsigned char PWM_IN_PIN = 3; // Need pin 2 or 3 for interrupts
 unsigned char ONOFF_IN_PIN = 8;
 
 // Dimmer stuff
-unsigned char SHUTDOWN_VALUE = 60; // when to turn off the bulb (because of flickering..)
 volatile boolean zero_cross=0;  // Boolean to store a "switch" to tell us if we have crossed zero
-
-volatile int i=0;               // Variable to use as a counter
-unsigned char dimming = 114;  // Dimming level (0-100)
+volatile unsigned char dimming = 114;  // Dimming level (0-100)
 
 //PWM reading stuff
 volatile boolean interrupted = false; // the dimmer interrupt sometimes messes up the PWM readings.
 volatile int pwm_value = 0;
-volatile unsigned long prev_time = 0;
+volatile unsigned long prev_time = 0; // used for measuring PWM
 
 // variables used in the loop
 int on_off_value = 0;
 int temp_pwm_value;
 int prev_temp_pwm_value = -1;
-int prev_dimming = -1;
 unsigned char temp_dimming;
 
 void setup() {
@@ -61,7 +57,7 @@ void loop() {
       prev_temp_pwm_value = temp_pwm_value;
       //Serial.println(temp_pwm_value );
       
-      // Get PWM and make sure we don't see any unexpected values
+      // Get PWM and ignore any unexpected values
       if ((temp_pwm_value < 0) || (temp_pwm_value > 900)) {
         return; 
       }

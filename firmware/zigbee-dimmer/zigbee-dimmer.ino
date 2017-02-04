@@ -51,7 +51,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
 
   pinMode(ONOFF_IN_PIN, INPUT); 
-  delay(500);
+  //delay(500);
   //Serial.println("Started");
 }
 

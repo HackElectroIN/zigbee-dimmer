@@ -1,4 +1,3 @@
-#include <AStar32U4.h>
 #include  <TimerOne.h> 
 
 #include "RunningAverage.h"

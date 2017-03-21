@@ -102,14 +102,14 @@ void loop() {
 void zero_cross_called() {
   interrupted = true;
   detachInterrupt(digitalPinToInterrupt(PWM_IN_PIN));
-  int dimtime = 65*dimming;     //65?  
+  int dimtime = 65*dimming;     //For 50Hz, use 100 instead of 65  
   Timer1.initialize(dimtime);                      // Initialize TimerOne library for the freq we need
   Timer1.attachInterrupt(zero_cross_step2);      
 }
 
 void zero_cross_step2() {
   digitalWrite(AC_LOAD_PIN, HIGH);   // triac firing
-  delayMicroseconds(8.33);         // triac On propogation delay
+  delayMicroseconds(8.33);         // triac On propogation delay. for 50Hz, use 10 instead of 8.33
   digitalWrite(AC_LOAD_PIN, LOW);    // triac Off
   Timer1.stop();
   attachInterrupt(digitalPinToInterrupt(PWM_IN_PIN), falling, FALLING);
